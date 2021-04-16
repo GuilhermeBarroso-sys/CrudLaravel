@@ -1,6 +1,7 @@
-@extends('layouts.app')
 
+@extends('layouts.app')
 @section('content')
+
     <div class="container">
 
         <div class="col-md-12">
@@ -23,13 +24,35 @@
                         <tr>
                             <th scope="row">{{$product->id}}</th>
                             <td>{{$product->name}}</td>
-                            <td>{{$product->price}}</td>
+                            <td>$ {{$product->price}}</td>
                             <td>{{$product->amount}}</td>
+
                             <td class = "w-25 text-center">
-                                <a href="{{ route('products.show', ['product'=>$product->id])}}" class="btn btn-secondary">Ver</a>
-                                <a href="" class="btn btn-info">Edit</a>
-                                <a href="" class="btn btn-danger">Remove</a>
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <a href="{{ route('products.show', ['product'=>$product->id])}}" class="btn btn-secondary">View</a>
+                                        </div>
+                                        <div class="col-sm-1">
+                                            <a href="{{ route('products.edit', ['product'=>$product->id])}}" onclick = "warning()" class="btn btn-info">Edit</a>
+                                        </div>
+                                        <div class="col-sm">
+                                            <form action="{{ route('products.destroy', ['product'=>$product->id])}}" onsubmit = "deleteConfirm(event,this)" method = "POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-danger">Remove</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+
+
+
                             </td>
+
                         </tr>
                     @endforeach
                 </tbody>
@@ -37,5 +60,19 @@
 
         </div>
     </div>
+
+
+<script>
+    function deleteConfirm(event, form) {
+    event.preventDefault();
+    const decision = confirm("This Product will be deleted, are you sure?");
+    if(decision) {
+        form.submit();
+    }
+
+}
+
+
+</script>
 
 @endsection

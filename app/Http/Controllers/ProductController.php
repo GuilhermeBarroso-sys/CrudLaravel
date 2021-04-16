@@ -36,6 +36,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         Product::create($request->all());
+        return redirect()->route('products.index');
 
 
     }
@@ -61,7 +62,8 @@ class ProductController extends Controller
      */
     public function edit($id)
     {
-        //
+        $product = Product::find($id);
+        return view('products/edit')->with(['product'=>$product]);
     }
 
     /**
@@ -73,7 +75,9 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+
+        Product::find($id)->update($request->all());
+        return redirect()->route('products.index');
     }
 
     /**

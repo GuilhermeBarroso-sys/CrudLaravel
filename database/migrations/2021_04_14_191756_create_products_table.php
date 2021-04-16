@@ -17,8 +17,10 @@ class CreateProductsTable extends Migration
             $table->bigIncrements('id');
             $table->string('name');
             $table->string('description')->nullable();
-            $table->double('price');
+            $table->double('price', 8, 2);
             $table->integer('amount');
+            $table->string('filename')->nullable();
+            $table->string('url')->nullable();
 
             $table->timestamps();
         });
