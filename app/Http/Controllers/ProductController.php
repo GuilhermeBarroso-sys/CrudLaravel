@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Support\Facades\Storage;
 class ProductController extends Controller
 {
     /**
@@ -35,7 +36,16 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        Product::create($request->all());
+        $path = $request->file('image')->store('products', 's3');
+
+        Product::create([
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'price' => $request->input('price'),
+            'amount' => $request->input('amount'),
+            'filename' => basename($path),
+            'url' => Storage::disk('s3')->url($path),
+        ]);
         return redirect()->route('products.index');
 
 
