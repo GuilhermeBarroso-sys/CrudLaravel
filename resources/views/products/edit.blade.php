@@ -4,7 +4,7 @@
 <div class="container">
     <h1 class = "text-center">Edit a Product</h1>
     <hr>
-    <form action="{{route('products.update', ['product '/*<- Nome do parametro | valor do parametro ->*/ => $product->id])}}" class = "form-horizontal" method = "POST">
+    <form action="{{route('products.update', ['product '/*<- Nome do parametro | valor do parametro ->*/ => $product->id])}}" class = "form-horizontal" method = "POST" enctype="multipart/form-data">
         @csrf <!--token-->
         @method('PUT') <!--Informar que o metodo  de edição. -->
         <div class="form-group">
@@ -22,10 +22,19 @@
                 <input type="number" value = "{{$product->price}}" onchange = "setTwoNumberDecimal"  min="1" max="99999999" step="0.25" placeholder = "Product Price" class="form-control" name = "price" required>
             </div>
             <div class="row">
-                <label for="Amount">Amount</label>
+                <label for="Amount">Amount in stock</label>
                 <input type="number" value = "{{$product->amount}}" placeholder = "Product Amount"class="form-control" name = "amount" required>
             </div>
             <br>
+            <div class="row">
+                <p><strong>Product Current Image:</strong></p>
+            </div>
+            <div class="row">
+
+                <img src = "{{$product->url}}" width = "300" height = "300" class="img-thumbnail">
+            </div>
+            <br>
+
             <div class="row">
 
                 <button type="submit" class = "btn btn-primary">Update</button>
@@ -33,9 +42,6 @@
         </div>
     </form>
 </div>
-<script>
-    function setTwoNumberDecimal(event) {
-        this.value = parseFloat(this.value).toFixed(2);
-    }
-</script>
+<script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 @endsection

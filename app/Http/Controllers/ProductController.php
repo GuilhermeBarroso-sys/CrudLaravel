@@ -37,7 +37,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $path = $request->file('image')->store('products', 's3');
-
+        Storage::disk('s3')->setVisibility($path,'public');
         Product::create([
             'name' => $request->input('name'),
             'description' => $request->input('description'),
@@ -86,8 +86,22 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
 
-        Product::find($id)->update($request->all());
-        return redirect()->route('products.index');
+            Product::find($id)->update([
+                'name' => $request->input('name'),
+                'description' => $request->input('description'),
+                'price' => $request->input('price'),
+                'amount' => $request->input('amount'),
+            ]);
+            return redirect()->route('products.index');
+
+
+
+
+
+
+
+
+
     }
 
     /**
@@ -98,6 +112,8 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Product::destroy($id);
+        return redirect()->route('products.index');
+
     }
 }

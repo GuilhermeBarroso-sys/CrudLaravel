@@ -29,7 +29,7 @@
             <br>
             <div class="row">
                 <label for="Product Image">Product Image</label>
-                <input type="file" class="form-control-file" name = "image" id = "image">
+                <input type="file" accept="image/*" class="form-control-file" name = "image" id = "image">
             </div><br>
             <div class="row">
 

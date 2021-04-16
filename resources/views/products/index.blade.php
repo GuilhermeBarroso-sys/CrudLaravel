@@ -5,7 +5,7 @@
     <div class="container">
 
         <div class="col-md-12">
-            <a href="/products/create" class="btn btn-success">Criar</a>
+            <a href="/products/create" class="btn btn-success">Create</a>
             <br>
             <br>
             <h1>Products</h1>
@@ -25,23 +25,33 @@
                             <th scope="row">{{$product->id}}</th>
                             <td>{{$product->name}}</td>
                             <td>$ {{$product->price}}</td>
-                            <td>{{$product->amount}}</td>
+                            <td>
+                                @if($product->amount == 0)
+                                    <span style = "color:red"> {{$product->amount}} </span>
+                                    @endif
+                                    @if($product->amount > 1000)
+                                    <span style = "color:green"> {{$product->amount}} </span>
+                                    @endif
+                                    @if($product->amount < 1000 && $product->amount > 0)
+                                    <span style = "color:rgb(253, 186, 0)"> {{$product->amount}} </span>
+                                @endif
+                            </td>
 
                             <td class = "w-25 text-center">
                                 <div class="container">
-                                    <div class="row">
-                                        <div class="col-sm-3">
-                                            <a href="{{ route('products.show', ['product'=>$product->id])}}" class="btn btn-secondary">View</a>
-                                        </div>
-                                        <div class="col-sm-1">
-                                            <a href="{{ route('products.edit', ['product'=>$product->id])}}" onclick = "warning()" class="btn btn-info">Edit</a>
-                                        </div>
-                                        <div class="col-sm">
-                                            <form action="{{ route('products.destroy', ['product'=>$product->id])}}" onsubmit = "deleteConfirm(event,this)" method = "POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="btn btn-danger">Remove</button>
-                                            </form>
+                                    <div class="col-sm-12">
+                                        <div class="row">
+
+                                                <a style = "margin-right:5px;" href="{{ route('products.show', ['product'=>$product->id])}}" class="btn btn-secondary">View</a>
+
+                                                <a style = "margin-right:5px;" href="{{ route('products.edit', ['product'=>$product->id])}}" class="btn btn-info text-white">Edit</a>
+
+                                                <form action="{{ route('products.destroy', ['product'=>$product->id])}}" onsubmit = "deleteConfirm(event,this)" method = "POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button class="btn btn-danger">Remove</button>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
