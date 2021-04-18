@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 class ProductController extends Controller
 {
@@ -14,7 +17,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::all();
+
+        $products = DB::select('select * from products where user_id = '. Auth::user()->id );
         return view('products/index')->with(['products' => $products]);
     }
 
@@ -25,6 +29,7 @@ class ProductController extends Controller
      */
     public function create()
     {
+
         return view('products/create');
     }
 
@@ -40,6 +45,7 @@ class ProductController extends Controller
         Storage::disk('s3')->setVisibility($path,'public');
         Product::create([
             'name' => $request->input('name'),
+            'user_id' => $request->input('user_id'),
             'description' => $request->input('description'),
             'price' => $request->input('price'),
             'amount' => $request->input('amount'),

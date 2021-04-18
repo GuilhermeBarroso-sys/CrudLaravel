@@ -8,9 +8,11 @@
             </div>
             <div class="card-body">
                 <img class="img-thumbnail" src = "{{$product->url}}"/></p>
+
                 <p class="card-text"> <strong> Description:</strong> {{$product->description}}</p>
                 <p class="card-text"> <strong> Price:</strong> $ {{$product->price}}</p>
                 <p class="card-text"> <strong> Amount in stock:</strong>
+
                     @if($product->amount == 0)
                     <span style = "color:red"> {{$product->amount}} </span>
                     @endif

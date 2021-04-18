@@ -12,6 +12,7 @@
             <div class="row">
                 <label for="Name">Name</label>
                 <input type="text" placeholder = "Product Name" class="form-control" name = "name" required>
+                <input type="hidden" value = "{{ Auth::user()->id }}"name = "user_id">
             </div>
 
             <div class="row">

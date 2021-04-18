@@ -13,8 +13,14 @@ class CreateProductsTable extends Migration
      */
     public function up()
     {
+
         Schema::create('products', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')
+            ->references('id')
+            ->on('users')
+            ->onDelete('cascade');
             $table->string('name');
             $table->string('description')->nullable();
             $table->double('price', 8, 2);
