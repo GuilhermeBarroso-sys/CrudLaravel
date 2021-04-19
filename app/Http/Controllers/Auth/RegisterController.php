@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class RegisterController extends Controller
 {
@@ -63,10 +65,24 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+
+       User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+        $idUser = DB::select('select id from users where email = "'. $data['email']. '"');
+
+        $id = json_encode($idUser[0]->id);
+
+
+        storage::disk('s3')->makeDirectory('id/'.$id);
+
+
+
+
+
+
+
     }
 }
