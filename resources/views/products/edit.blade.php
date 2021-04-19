@@ -31,7 +31,7 @@
             </div>
             <div class="row">
 
-                <img src = "{{$product->url}}" width = "300" height = "300" class="img-thumbnail">
+                <img src = "{{$signedUrl}}" width = "300" height = "300" class="img-thumbnail">
             </div>
             <br>
 

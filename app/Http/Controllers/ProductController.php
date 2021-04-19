@@ -6,8 +6,17 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+
+use Config;
+
+use Aws\S3\S3Client;
+use Aws\Exception\AwsException;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config as FacadesConfig;
 use Illuminate\Support\Facades\Storage;
+use services\Aws;
+
 class ProductController extends Controller
 {
     /**
@@ -41,7 +50,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $path = $request->file('image')->store('products', 's3');
+        $path = $request->file('image')->store('id/'.$request->input('user_id').'/products', 's3');
         Storage::disk('s3')->setVisibility($path,'public');
         Product::create([
             'name' => $request->input('name'),
@@ -67,7 +76,21 @@ class ProductController extends Controller
     public function show($id)
     {
         $product = Product::find($id);
-        return view('products/show')->with(['product'=>$product]);
+        $prod = json_decode($product);
+        $client = Storage::disk('s3')->getDriver()->getAdapter()->getClient();
+        $bucket = Config::get('filesystems.disks.s3.bucket');
+
+        $command = $client->getCommand('GetObject', [
+            'Bucket' => $bucket,
+            'Key' => 'id/'.$prod->user_id.'/'.'products/'.$prod->filename  // file name in s3 bucket which you want to access
+        ]);
+
+        $request = $client->createPresignedRequest($command, '+1 minutes');
+
+        // Get the actual presigned-url
+        $presignedUrl = (string)$request->getUri();
+
+        return view('products/show')->with(['product'=>$prod, 'signedUrl'=> $presignedUrl]);
     }
 
     /**
@@ -79,7 +102,21 @@ class ProductController extends Controller
     public function edit($id)
     {
         $product = Product::find($id);
-        return view('products/edit')->with(['product'=>$product]);
+
+        $prod = json_decode($product);
+        $client = Storage::disk('s3')->getDriver()->getAdapter()->getClient();
+        $bucket = Config::get('filesystems.disks.s3.bucket');
+
+        $command = $client->getCommand('GetObject', [
+            'Bucket' => $bucket,
+            'Key' => 'id/'.$prod->user_id.'/'.'products/'.$prod->filename  // file name in s3 bucket which you want to access
+        ]);
+
+        $request = $client->createPresignedRequest($command, '+1 minutes');
+
+        // Get the actual presigned-url
+        $presignedUrl = (string)$request->getUri();
+        return view('products/edit')->with(['product'=>$product, 'signedUrl'=> $presignedUrl]);
     }
 
     /**

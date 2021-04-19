@@ -7,7 +7,7 @@
                 <h5 class = "card-title">{{$product->name}}</h5>
             </div>
             <div class="card-body">
-                <img class="img-thumbnail" src = "{{$product->url}}"/></p>
+                <img class="img-thumbnail" src = "{{$signedUrl}}"/></p>
 
                 <p class="card-text"> <strong> Description:</strong> {{$product->description}}</p>
                 <p class="card-text"> <strong> Price:</strong> $ {{$product->price}}</p>
