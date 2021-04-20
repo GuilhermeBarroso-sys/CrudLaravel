@@ -66,17 +66,13 @@ class RegisterController extends Controller
     protected function create(array $data)
     {
 
-       User::create([
+       $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
-        $idUser = DB::select('select id from users where email = "'. $data['email']. '"');
 
-        $id = json_encode($idUser[0]->id);
-
-
-        storage::disk('s3')->makeDirectory('id/'.$id);
+        return $user;
 
 
 

@@ -128,14 +128,23 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
+            $path = Product::find($id)->filename;
+            $filename = $request->file('image');
+
+            if(!($filename === null)) {
+                $path = $request->file('image')->store('id/'.$request->input('user_id').'/products', 's3');
+            }
 
             Product::find($id)->update([
                 'name' => $request->input('name'),
                 'description' => $request->input('description'),
                 'price' => $request->input('price'),
                 'amount' => $request->input('amount'),
+                'filename' => basename($path),
+                'url' => Storage::disk('s3')->url($path),
             ]);
             return redirect()->route('products.index');
+
 
 
 

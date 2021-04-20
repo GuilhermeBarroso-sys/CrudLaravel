@@ -8,7 +8,7 @@
         @csrf <!--token-->
         @method('PUT') <!--Informar que o metodo  de edição. -->
         <div class="form-group">
-
+                <input type = "hidden" name = "user_id" value = "{{$product->user_id}}"/>
             <div class="row">
                 <label for="Name">Name</label>
                 <input type="text" value = "{{$product->name}}" placeholder = "Product Name" class="form-control" name = "name" required>
@@ -34,6 +34,11 @@
                 <img src = "{{$signedUrl}}" width = "300" height = "300" class="img-thumbnail">
             </div>
             <br>
+            <div class = "row">
+                <input type="file" name = "image"  id="customFile" />
+
+            </div>
+            <br>
 
             <div class="row">
 
@@ -43,5 +48,6 @@
     </form>
 </div>
 <script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
 @endsection
