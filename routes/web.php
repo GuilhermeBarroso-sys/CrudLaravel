@@ -16,7 +16,8 @@ Route::get('/', function () {
 });
 
 Route::resource('/products', 'ProductController');
-
+Route::post('/products/{product}/pdfGenerate', 'ProductController@pdfGenerate')->name('products.pdfGenerate');
+Route::post('/products/{product}/pdfGenerateShow', 'ProductController@pdfGenerateShow')->name('products.pdfGenerateShow');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');

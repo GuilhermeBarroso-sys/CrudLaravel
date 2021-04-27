@@ -4,18 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Barryvdh\DomPDF\PDF;
 use Illuminate\Support\Facades\DB;
-use App\Models\User;
 
 use Config;
-
-use Aws\S3\S3Client;
-use Aws\Exception\AwsException;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Config as FacadesConfig;
 use Illuminate\Support\Facades\Storage;
-use services\Aws;
+
 
 class ProductController extends Controller
 {
@@ -51,7 +47,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $path = $request->file('image')->store('id/'.$request->input('user_id').'/products', 's3');
-        Storage::disk('s3')->setVisibility($path,'public');
+
         Product::create([
             'name' => $request->input('name'),
             'user_id' => $request->input('user_id'),
@@ -60,6 +56,9 @@ class ProductController extends Controller
             'amount' => $request->input('amount'),
             'filename' => basename($path),
             'url' => Storage::disk('s3')->url($path),
+            'pdf_generate' => 0,
+            'pdf_signed' => 0,
+
         ]);
         return redirect()->route('products.index');
 
@@ -168,4 +167,46 @@ class ProductController extends Controller
         return redirect()->route('products.index');
 
     }
+
+   /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+
+     */
+    public function pdfGenerateShow(Request $request) {
+        $id = $request->input("id");
+        $product = Product::find($id);
+        $prod = json_decode($product);
+        $client = Storage::disk('s3')->getDriver()->getAdapter()->getClient();
+        $bucket = Config::get('filesystems.disks.s3.bucket');
+
+        $command = $client->getCommand('GetObject', [
+            'Bucket' => $bucket,
+            'Key' => 'id/'.$prod->user_id.'/'.'products/'.$prod->filename  // file name in s3 bucket which you want to access
+        ]);
+        $request = $client->createPresignedRequest($command, '+1 minutes');
+        // Get the actual presigned-url
+        $presignedUrl = (string)$request->getUri();
+
+        $pdf = \PDF::loadView('products.pdfGenerateShow', compact('product', 'presignedUrl'));
+        $content = $pdf->download()->getOriginalContent();
+        Storage::disk('s3')->put('teste.pdf', $content);
+        return "ok";
+        //Storage::put('products/pdf/nameeeeeee.pdf', $content);
+
+
+
+
+
+
+
+
+     }
 }
