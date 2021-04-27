@@ -26,6 +26,67 @@
 
             </div>
         </div>
+        <br>
+
+        @if ($product->pdf_generate == 0)
+        <form action="{{ route('products.pdfGenerate', ['product'=>$product->id])}}" method = "POST">
+            <input hidden value = "{{$signedUrl}}" name = "signedUrl" />
+            <input hidden value = "{{$product->id}}" name = "id" />
+            <input hidden value = "0" name = "view"/>
+            <input hidden value = "0" name = "signed"/>
+            <button type = "submit" class="btn btn-info float-right">
+                @csrf
+
+                <strong>Gerar pdf</strong>
+            </button>
+        </form>
+        @else
+        <form action="{{ route('products.pdfGenerate', ['product'=>$product->id])}}" method = "POST">
+            <button type = "submit" class="btn btn-info float-right">
+                @csrf
+                <input hidden value = "{{$signedUrl}}" name = "signedUrl" />
+                <input hidden value = "{{$product->id}}" name = "id" />
+                <input hidden value = "1" name = "view"/>
+                <input hidden value = "0" name = "signed"/>
+                <strong>Ver pdf</strong>
+            </button>
+        </form>
+        @endif
+        @if($product->pdf_generate == 1 && $product->pdf_signed == 0)
+            <br>
+            <br>
+            <button type = "submit" id = "signed_button" class="btn btn-success float-right">
+
+
+                <strong>Assinar</strong>
+            </button>
+            <br>
+            <br>
+
+            <div style = "text-align:right; display:none;" id = "field_signed">
+                <form action="{{ route('products.pdfGenerate', ['product'=>$product->id])}}" method = "POST">
+                    @csrf
+                    <input hidden value = "{{$product->id}}" name = "id" />
+                    <input hidden value = "0" name = "view"/>
+                    <input hidden value = "1" name = "signed"/>
+                    <div class = "float-right">
+                        <input type = "text" placeholder = "Sua assinatura" name = "signature" class = "form-control w-100" required />
+                        <button type = "submit" id = "signed_button" class="btn btn-success float-right mt-1">Enviar</button>
+                    </div>
+
+
+                </form>
+            </div>
+        @endif
+
+
     </div>
 
+<script>
+    $(document).ready(function() {
+        $('#signed_button').click(() => {
+            $('#field_signed').slideToggle();
+        })
+    })
+</script>
 @endsection
