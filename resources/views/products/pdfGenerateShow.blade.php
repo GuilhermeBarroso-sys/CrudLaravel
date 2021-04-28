@@ -10,6 +10,8 @@
 
     <div class="container w-75 text-center">
         <h2>{{$product->name}} </h2>
+        <br>
+        <br>
         <div class="card">
 
             <br>
@@ -39,10 +41,12 @@
         <br>
 
     </div>
-    @if ($client_signature != "")
-        <span class = "h3 text-left" style = "text-align:left;">Assinatura eletrônica:</span>
-        <span>{{$client_signature}}</span>
-    @endif
+        <div style = "position:fixed;bottom:55px;">
+            <span class = "h3 text-left" style = "text-align:left;">Assinatura:</span>
+            <span>{{$client_signature}}</span>
+        </div>
+
+
 
 
 

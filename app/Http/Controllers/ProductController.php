@@ -1,16 +1,23 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Models\Product;
-use Barryvdh\DomPDF\PDF;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\PDF;
+use Dompdf\Autoloader;
 
+use setasign\Fpdi\PdfParser;
 use Config;
+use FPDF;
+use Illuminate\Http\File;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use setasign\Fpdi\FpdfTpl;
+use setasign\Fpdi\PdfParser\StreamReader;
+use setasign\Fpdi\Tcpdf\Fpdi;
+use setasign\Fpdi\Tfpdf\Fpdi as TfpdfFpdi;
 
 class ProductController extends Controller
 {
@@ -184,12 +191,10 @@ class ProductController extends Controller
         $signed = $request->input("signed");
         $signed == "1" ? $client_signature = $request->input("signature") : $client_signature = "";
         $view = $request->input("view");
-
         $product = Product::find($id);
         $prod = json_decode($product);
         $client = Storage::disk('s3')->getDriver()->getAdapter()->getClient();
         $bucket = Config::get('filesystems.disks.s3.bucket');
-
         $command = $client->getCommand('GetObject', [
             'Bucket' => $bucket,
             'Key' => 'id/'.$prod->user_id.'/'.'products/images/'.$prod->filename  // file name in s3 bucket which you want to access
@@ -200,6 +205,42 @@ class ProductController extends Controller
 
         $pdf = \PDF::loadView('products.pdfGenerateShow', compact('product', 'presignedUrl','client_signature'));
         if($view == "1") {
+            $tag_Y = 218; // Simulação da Tag Y
+            /*$parser = new \Smalot\PdfParser\Parser();
+            $pdfget = $parser->parseFile(public_path('cartaoDePonto.pdf'));
+            $text = $pdfget->getDetails();
+            Pegar as Tags
+            */
+            $client = Storage::disk('s3')->getDriver()->getAdapter()->getClient();
+            $bucket = Config::get('filesystems.disks.s3.bucket');
+            $command = $client->getCommand('GetObject', [
+                'Bucket' => $bucket,
+                'Key' => 'id/'.$prod->user_id.'/'.'products/product_pdf/'.$prod->name.'.pdf' // file name in s3 bucket which you want to access
+            ]);
+            $request = $client->createPresignedRequest($command, '+15 minutes');
+            // Get the actual presigned-url
+            $presignedUrl = (string)$request->getUri();
+
+
+            return redirect($presignedUrl);
+            /***Codigo original !! */
+            /*$client = Storage::disk('s3')->getDriver()->getAdapter()->getClient();
+            $bucket = Config::get('filesystems.disks.s3.bucket');
+
+            $command = $client->getCommand('GetObject', [
+                'Bucket' => $bucket,
+                'Key' => 'id/'.$prod->user_id.'/'.'products/product_pdf/'.$prod->name.'.pdf' // file name in s3 bucket which you want to access
+            ]);
+            $request = $client->createPresignedRequest($command, '+15 minutes');
+            // Get the actual presigned-url
+            $presignedUrl = (string)$request->getUri();
+            dd($presignedUrl);
+            return redirect($presignedUrl);
+            */
+
+        }
+        else if($signed == "1"){
+
 
             $client = Storage::disk('s3')->getDriver()->getAdapter()->getClient();
             $bucket = Config::get('filesystems.disks.s3.bucket');
@@ -208,23 +249,36 @@ class ProductController extends Controller
                 'Bucket' => $bucket,
                 'Key' => 'id/'.$prod->user_id.'/'.'products/product_pdf/'.$prod->name.'.pdf' // file name in s3 bucket which you want to access
             ]);
-            $request = $client->createPresignedRequest($command, '+15 seconds');
+            $request = $client->createPresignedRequest($command, '+15 minutes');
             // Get the actual presigned-url
             $presignedUrl = (string)$request->getUri();
-            return redirect($presignedUrl);
-        }
-        else if($signed == "1"){
-            $content = $pdf->download()->getOriginalContent();
-            Storage::disk('s3')->put('id/'.$prod->user_id.'/products/product_pdf/'.$prod->name.'.pdf', $content);
+            $fileContent = file_get_contents($presignedUrl, 'rb');
+            $pdfedit = new \setasign\Fpdi\Fpdi();
+            $pdfedit->setSourceFile(StreamReader::createByString($fileContent));
+            $tpl = $pdfedit->importPage(1);
+            $pdfedit->AddPage();
+            $pdfedit->useTemplate($tpl);
+            $pdfedit->SetFont('Helvetica');
+            $pdfedit->SetFontSize('15'); // set font size
+            $pdfedit->SetXY(50, 275.5); // set the position of the box
+            $pdfedit->Cell(0, 0, $client_signature, 0, 0, 'L'); // add the text, align to Center of cell
+            //$fileDownloadPath = public_path($prod->name.'.pdf');
+
+            Storage::disk('s3')->put('id/'.$prod->user_id.'/'.'products/product_pdf/'.$prod->name.'.pdf',$pdfedit->Output("S"));
+
+
+            /*Storage::disk('s3')->put('id/'.$prod->user_id.'/products/product_pdf/'.$prod->name.'.pdf', $pdfedit->setSourceFile(StreamReader::createByString($fileContent)));*/
             $product->update(
                 [
                     'pdf_signed' => 1
                 ]
             );
+
             return redirect("/products/".$id);
         }
         else {
         $content = $pdf->download()->getOriginalContent();
+
         Storage::disk('s3')->put('id/'.$prod->user_id.'/products/product_pdf/'.$prod->name.'.pdf', $content);
         $product->update(
             [
