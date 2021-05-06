@@ -27,6 +27,7 @@ class CreateProductsTable extends Migration
             $table->integer('amount');
             $table->string('filename')->nullable();
             $table->string('url')->nullable();
+            $table->tinyInteger('services_terms');
             $table->tinyInteger('pdf_generate');
             $table->tinyInteger('pdf_signed');
             $table->timestamps();

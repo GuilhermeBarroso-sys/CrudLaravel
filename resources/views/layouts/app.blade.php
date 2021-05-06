@@ -21,7 +21,14 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
 </head>
+<style>
+    .link:hover {
+        cursor: pointer;
+        text-decoration-line:underline;
+    }
+</style>
 <body>
     <script src = "../../../js/app.js"></script>
     <div id="app">
